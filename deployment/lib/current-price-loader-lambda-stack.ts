@@ -2,11 +2,13 @@ import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as cdk from 'aws-cdk-lib';
-import { IRepository, Repository } from "aws-cdk-lib/aws-ecr";
+import { IRepository } from "aws-cdk-lib/aws-ecr";
 import { Architecture, Handler } from "aws-cdk-lib/aws-lambda";
+import { Table } from "aws-cdk-lib/aws-dynamodb";
 
 interface CurrentPriceLoaderLambdaStackProps extends StackProps {
 	repositoryOfLambdaFunctionHandlers: IRepository;
+	coinPriceTable: Table;
 }
 
 export class CurrentPriceLoaderLambdaStack extends Stack {
@@ -30,5 +32,6 @@ export class CurrentPriceLoaderLambdaStack extends Stack {
 			},
 		});
 		props.repositoryOfLambdaFunctionHandlers.grantPull(currentPriceLoaderLambda);
+		props.coinPriceTable.grantFullAccess(currentPriceLoaderLambda);
 	}
 }

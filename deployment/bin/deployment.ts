@@ -7,8 +7,9 @@ import { LambdaEcrRepositoryStack } from "../lib/lambda-ecr-repository-stack";
 
 const app = new cdk.App();
 // stacks
-new DynamoDBStack(app, "DynamoDBStack");
+const dynamodb = new DynamoDBStack(app, "DynamoDBStack");
 const lambdaEcrRepositoryStack = new LambdaEcrRepositoryStack(app, "LambdaEcrRepositoryStack");
 new CurrentPriceLoaderLambdaStack(app, "CurrentPriceLoaderLambdaStack", {
-	repositoryOfLambdaFunctionHandlers: lambdaEcrRepositoryStack.getCreatedLambdaEcrRepository()
+	repositoryOfLambdaFunctionHandlers: lambdaEcrRepositoryStack.getCreatedLambdaEcrRepository(),
+	coinPriceTable: dynamodb.getCoinPriceTable()
 });
