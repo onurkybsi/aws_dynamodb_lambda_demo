@@ -11,15 +11,21 @@ interface LambdaStackProps extends StackProps {
 }
 
 export class LambdaStack extends Stack {
+	private currentPriceLoaderLambda: Function;
 
 	constructor(scope: Construct, id: string, props: LambdaStackProps) {
 		super(scope, id, props);
 
 		props.lambdaFunctionNameRepositoryPairs
-			.forEach(pair => this.buildLambdaFunction(pair[0], pair[1], props.coinPriceDynamoDbTable));
+			.forEach(pair => {
+				const createdFunction = this.buildLambdaFunction(pair[0], pair[1], props.coinPriceDynamoDbTable);
+				if (pair[0] == "current-price-loader") {
+					this.currentPriceLoaderLambda = createdFunction;
+				}
+			});
 	}
 
-	private buildLambdaFunction(name: string, repository: IRepository, coinPriceDynamoDbTable: Table): void {
+	private buildLambdaFunction(name: string, repository: IRepository, coinPriceDynamoDbTable: Table): Function {
 		const lambda = new Function(this, `${name}Lambda`, {
 			functionName: name,
 			runtime: Runtime.FROM_IMAGE,
@@ -37,5 +43,11 @@ export class LambdaStack extends Stack {
 		});
 		repository.grantPull(lambda);
 		coinPriceDynamoDbTable.grantFullAccess(lambda);
+
+		return lambda;
+	}
+
+	public getCurrentPriceLoaderLambda(): Function {
+		return this.currentPriceLoaderLambda;
 	}
 }
